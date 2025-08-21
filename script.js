@@ -1,23 +1,65 @@
-// Efeito de digitação no título
+// Efeito de digitação no título (apenas se o elemento existir)
 document.addEventListener('DOMContentLoaded', function() {
     const title = document.getElementById('typing-title');
-    const originalText = title.textContent;
-    title.textContent = '';
+    if (title) {
+        const originalText = title.textContent;
+        title.textContent = '';
+        
+        let i = 0;
+        const typeWriter = () => {
+            if (i < originalText.length) {
+                title.textContent += originalText.charAt(i);
+                i++;
+                setTimeout(typeWriter, 100);
+            }
+        };
+        
+        typeWriter();
+    }
     
-    let i = 0;
-    const typeWriter = () => {
-        if (i < originalText.length) {
-            title.textContent += originalText.charAt(i);
-            i++;
-            setTimeout(typeWriter, 100);
-        }
-    };
+    // Controle do tema claro/escuro
+    const themeToggle = document.createElement('button');
+    themeToggle.classList.add('theme-toggle');
+    themeToggle.innerHTML = '🌓';
+    themeToggle.title = 'Alternar entre modo claro e escuro';
     
-    typeWriter();
+    // Verificar preferência salva
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.innerHTML = savedTheme === 'dark' ? '☀️' : '🌙';
+    }
     
-    // Animação de revelação dos elementos ao rolar
+    // Alternar tema
+    themeToggle.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        themeToggle.innerHTML = newTheme === 'dark' ? '☀️' : '🌙';
+    });
+    
+    document.body.appendChild(themeToggle);
+    
+    // Navegação suave
+    document.querySelectorAll('nav a').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            if (this.getAttribute('href').startsWith('#')) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                window.scrollTo({
+                    top: targetElement.offsetTop - 80,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+    
+    // Animações de revelação dos elementos ao rolar
     const animateOnScroll = () => {
-        const elements = document.querySelectorAll('.card, .contact-item, .section-title');
+        const elements = document.querySelectorAll('.card, .contact-item, .section-title, .course-item');
         
         elements.forEach(element => {
             const elementPosition = element.getBoundingClientRect().top;
@@ -31,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
     
     // Configurar estado inicial para animação
-    const elementsToAnimate = document.querySelectorAll('.card, .contact-item, .section-title');
+    const elementsToAnimate = document.querySelectorAll('.card, .contact-item, .section-title, .course-item');
     elementsToAnimate.forEach(element => {
         element.style.opacity = 0;
         element.style.transform = 'translateY(20px)';
@@ -43,110 +85,4 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Animar elementos ao rolar
     window.addEventListener('scroll', animateOnScroll);
-    
-    // Navegação suave
-    document.querySelectorAll('nav a').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-            e.preventDefault();
-            const targetId = this.getAttribute('href');
-            const targetElement = document.querySelector(targetId);
-            window.scrollTo({
-                top: targetElement.offsetTop - 80,
-                behavior: 'smooth'
-            });
-        });
-    });
-    
-    // Efeito de hover nos cartões
-    const cards = document.querySelectorAll('.card');
-    cards.forEach(card => {
-        card.addEventListener('mouseenter', () => {
-            card.style.transform = 'translateY(-5px) scale(1.02)';
-        });
-        
-        card.addEventListener('mouseleave', () => {
-            card.style.transform = 'translateY(0) scale(1)';
-        });
-    });
-    
-    // Alternar modo escuro (experimental)
-    const toggleDarkMode = () => {
-        document.body.classList.toggle('dark-mode');
-        
-        // Salvar preferência no localStorage
-        if (document.body.classList.contains('dark-mode')) {
-            localStorage.setItem('darkMode', 'enabled');
-        } else {
-            localStorage.setItem('darkMode', 'disabled');
-        }
-    };
-    
-    // Verificar preferência de modo escuro salva
-    if (localStorage.getItem('darkMode') === 'enabled') {
-        document.body.classList.add('dark-mode');
-    }
-    
-    // Adicionar botão de modo escuro (opcional)
-    const darkModeButton = document.createElement('button');
-    darkModeButton.textContent = '🌓';
-    darkModeButton.style.position = 'fixed';
-    darkModeButton.style.bottom = '20px';
-    darkModeButton.style.right = '20px';
-    darkModeButton.style.zIndex = '1000';
-    darkModeButton.style.background = 'var(--secondary-color)';
-    darkModeButton.style.color = 'white';
-    darkModeButton.style.border = 'none';
-    darkModeButton.style.borderRadius = '50%';
-    darkModeButton.style.width = '50px';
-    darkModeButton.style.height = '50px';
-    darkModeButton.style.cursor = 'pointer';
-    darkModeButton.style.fontSize = '1.5rem';
-    darkModeButton.addEventListener('click', toggleDarkMode);
-    
-    document.body.appendChild(darkModeButton);
-    
-    // Animação de preloader (opcional)
-    const preloader = document.createElement('div');
-    preloader.style.position = 'fixed';
-    preloader.style.top = '0';
-    preloader.style.left = '0';
-    preloader.style.width = '100%';
-    preloader.style.height = '100%';
-    preloader.style.background = 'var(--primary-color)';
-    preloader.style.display = 'flex';
-    preloader.style.justifyContent = 'center';
-    preloader.style.alignItems = 'center';
-    preloader.style.zIndex = '9999';
-    preloader.style.transition = 'opacity 0.5s ease';
-    
-    const spinner = document.createElement('div');
-    spinner.style.width = '50px';
-    spinner.style.height = '50px';
-    spinner.style.border = '5px solid rgba(255, 255, 255, 0.3)';
-    spinner.style.borderRadius = '50%';
-    spinner.style.borderTop = '5px solid white';
-    spinner.style.animation = 'spin 1s linear infinite';
-    
-    preloader.appendChild(spinner);
-    document.body.appendChild(preloader);
-    
-    // Estilo para a animação de spin
-    const spinStyle = document.createElement('style');
-    spinStyle.textContent = `
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    `;
-    document.head.appendChild(spinStyle);
-    
-    // Remover preloader quando a página carregar
-    window.addEventListener('load', () => {
-        setTimeout(() => {
-            preloader.style.opacity = '0';
-            setTimeout(() => {
-                preloader.remove();
-            }, 500);
-        }, 1000);
-    });
 });
